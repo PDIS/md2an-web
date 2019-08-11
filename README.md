@@ -1,1 +1,8 @@
-# md2an
+# Markdown to SayIt
+
+## Usage
+
+```
+npm install
+npm start
+```
