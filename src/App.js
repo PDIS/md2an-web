@@ -8,6 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
+import GitHubLogin from 'react-github-login';
 /* import css from './App.css' */
 const js2xmlparser = require('js2xmlparser');
 
@@ -25,6 +26,9 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(1, 1.5),
   },
 }))
+
+const onSuccess = response => console.log(response.code);
+const onFailure = response => console.error(response);
 
 const md2an = (input) => {
   let references = {'TLCPerson': []}
@@ -112,6 +116,13 @@ function App() {
           <Button href="#" color="primary" variant="outlined" className={classes.link}>
             Submit
           </Button>
+          <GitHubLogin clientId="7a7d8d6ba2a6f5847e5c"
+            buttonText="Login"
+            className="MuiButtonBase-root MuiButton-root makeStyles-link-4 MuiButton-outlined MuiButton-outlinedPrimary"
+            onSuccess={onSuccess}
+            onFailure={onFailure}
+            redirectUri="http://localhost:3000/"
+          />
         </Toolbar>
       </AppBar>
       <Container maxWidth="xl">
