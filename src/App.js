@@ -43,7 +43,7 @@ const md2an = (input) => {
     // info section
     if (/開始記錄/.exec(section)) {
       debateSection.heading = section.match(/ (.*?) /)[1]
-      if (/\>/.exec(section)) {
+      if (/>/.exec(section)) {
         let narratives = section.split('>')
         narratives.map( n => {
           if (/🌈/.exec(n)) {
@@ -90,7 +90,7 @@ const md2an = (input) => {
       },
       'debateBody': 
       { 
-        'debate-section': debateSection
+        'debate-Section': debateSection
       }
     }
   }
@@ -127,7 +127,7 @@ function App() {
       </AppBar>
       <Container maxWidth="xl">
         <Grid container spacing={1}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12}>
             <TextField
               id="input"
               label="INPUT"
@@ -136,9 +136,10 @@ function App() {
               multiline
               fullWidth
               variant="outlined"
+              autoFocus={true} 
+              rows={15}
+              rowsMax={15}
             />
-          </Grid>
-          <Grid item xs={12} md={6}>
             <TextField
               id="output"
               label="OUTPUT"
@@ -147,6 +148,9 @@ function App() {
               fullWidth
               value={values}
               variant="outlined"
+              autoFocus={true} 
+              rows={15}
+              rowsMax={15}
             />
           </Grid>
         </Grid>
