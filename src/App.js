@@ -8,7 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
-import GitHubLogin from 'react-github-login';
+import GitHubLogin from 'github-login';
 /* import css from './App.css' */
 const js2xmlparser = require('js2xmlparser');
 
@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const onSuccess = response => console.log(response.code);
+const onSuccess = response => console.log(response);
 const onFailure = response => console.error(response);
 
 const md2an = (input) => {
