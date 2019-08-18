@@ -11,6 +11,8 @@ import _ from 'lodash';
 import GitHubLogin from 'github-login';
 /* import css from './App.css' */
 const js2xmlparser = require('js2xmlparser');
+const marked = require('marked');
+const he = require('he');
 
 const useStyles = makeStyles(theme => ({
   appBar: {
@@ -34,15 +36,13 @@ const md2an = (input) => {
   let references = {'TLCPerson': []}
   let debateSection = {'heading':'','narrative':[],'speech':[]}
   let speakers = []
-  let sections = input.split('###')
+  let sections = input.replace(/\n:::info\n[\d\D]*?\n:::\n/, '').split('###')
+  debateSection.heading = (input.match(/^#* (.*)/) || [])[1]
   sections.map( section => {
     // first section = ''
-    if (section === '') {
-      return
-    }
+    if (! /\S/.test(section)) { return }
     // info section
     if (/開始記錄/.exec(section)) {
-      debateSection.heading = section.match(/ (.*?) /)[1]
       if (/>/.exec(section)) {
         let narratives = section.split('>')
         narratives.map( n => {
@@ -57,18 +57,23 @@ const md2an = (input) => {
           }
         })     
       }
+      return
     }
+
+    let speaker = (section.match(/ (.*?)[:：]\n/) || [])[1]
     // speaker sections
-    else {
-      let speaker = section.match(/ (.*?)：/)[1]
-      let context = (/([^：]*)$/).exec(section)[0].replace(/[\r\n]/g, '')
-      let speech = {
-        '@': { 
-          'by': '#' + speaker 
-        },
-        'p': context
-      }
-      debateSection.speech.push(speech)
+    if (speaker) {
+      let context = section.replace(/ (.*?)[:：]\n/, '')
+      context.split(/[\r\n]{2,}/).map(p => {
+        if (!/\S/.test(p)) { return }
+        let speech = {
+         '@': { 
+           'by': '#' + speaker 
+         },
+         'p': he.decode(marked(p.replace(/[\r\n]/g, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, '')
+        }
+        debateSection.speech.push(speech)
+      })
       speakers.push(speaker)
     }
   })
@@ -90,7 +95,7 @@ const md2an = (input) => {
       },
       'debateBody': 
       { 
-        'debate-Section': debateSection
+        'debateSection': debateSection
       }
     }
   }

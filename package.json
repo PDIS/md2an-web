@@ -8,8 +8,10 @@
     "@material-ui/icons": "^4.2.1",
     "gh-pages": "^2.1.1",
     "github-login": "^1.0.12",
+    "he": "^1.2.0",
     "js2xmlparser": "^4.0.0",
     "lodash": "^4.17.15",
+    "marked": "^0.7.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.0"
