@@ -70,7 +70,7 @@ const md2an = (input) => {
          '@': { 
            'by': '#' + speaker 
          },
-         'p': he.decode(marked(p.replace(/[\r\n]/g, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, '')
+         'p': he.decode(marked(p.replace(/^[\r\n]+/, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, '')
         }
         debateSection.speech.push(speech)
       })
@@ -88,6 +88,11 @@ const md2an = (input) => {
     }
     references.TLCPerson.push(TLCPerson)
   })
+  if (/Office Hour_/.test(debateSection.heading)) {
+    let heading = debateSection.heading.replace(/_[^_]*$/, '')
+    debateSection.heading = debateSection.heading.replace(/.*Office Hour_/, '')
+    debateSection = { 'heading': heading, 'debateSection': debateSection }
+  }
   let an = { 
     'debate': {
         'meta': { 
