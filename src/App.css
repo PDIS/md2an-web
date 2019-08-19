@@ -2,3 +2,10 @@ iframe
 {
     display: none;
 }
+html, body, #root 
+{
+    height: 100%
+}
+textarea { 
+    width: 100%; height: 45%; padding: 0; margin: 0 
+}

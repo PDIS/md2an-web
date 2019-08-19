@@ -6,10 +6,11 @@ import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import GitHubLogin from 'github-login';
-/* import css from './App.css' */
+import css from './App.css'
 const js2xmlparser = require('js2xmlparser');
 const marked = require('marked');
 const he = require('he');
@@ -106,19 +107,27 @@ const md2an = (input) => {
   return output
 }
 
+const findTitle  = (input) => {
+  return (input.match(/^#* (.*)/) || [])[1].replace(/\s/g, '-') + '.an.xml'
+}
+
 function App() {
   const classes = useStyles();
   const [values, setValues] = useState('');
+  const [title, setTitle] = useState('md2an');
   const handleChange = a => event => {
     let output = md2an(event.target.value)
+    let title = findTitle(event.target.value)
     setValues(output)
+    setTitle(title)
   };
   return (
     <React.Fragment>
+      <CssBaseline />
       <AppBar position="static" color="default" elevation={0} className={classes.appBar} >
         <Toolbar className={classes.toolbar}>
           <Typography variant="h6" color="inherit" noWrap className={classes.toolbarTitle}>
-            md2an
+            {title}
           </Typography>
 {/*           <Button href="#" color="primary" variant="outlined" className={classes.link}>
             Submit
@@ -132,8 +141,9 @@ function App() {
           /> */}
         </Toolbar>
       </AppBar>
-      <Container maxWidth="xl">
-        <Grid container spacing={1}>
+        <textarea autoFocus id="input" onChange={handleChange()} style={{background: '#ddd'}}></textarea>
+        <textarea id="output" value={values}></textarea>
+        {/* <Grid container spacing={1}>
           <Grid item xs={12}>
             <TextField
               id="input"
@@ -156,8 +166,7 @@ function App() {
               autoFocus={true} 
             />
           </Grid>
-        </Grid>
-      </Container>
+        </Grid> */}
     </React.Fragment>
   );
 }
