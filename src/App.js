@@ -42,24 +42,21 @@ const md2an = (input) => {
     // first section = ''
     if (! /\S/.test(section)) { return }
     // info section
-    if (/開始記錄/.exec(section)) {
-      if (/>/.exec(section)) {
-        let narratives = section.split('>')
-        narratives.map( n => {
-          if (/🌈/.exec(n)) {
-            let type = n.match(/\[(.*?)\]/)[1]
-            let narrative = {
-              'p': {
-                'i': '（請點選 <a href="' + n.match(/\((.*?)\)/)[1] + '">' + type + '</a> 參考）'
-              }
+    if (/🌐|📅|🏡/.exec(section)) {
+      let lines = section.split(/\n+/)
+      lines.map( line => {
+        if (/(?=.*>)(?=.*\[)(?=.*（).*/.exec(line)) {
+          let type = line.match(/\[(.*?)\]/)[1]
+          let narrative = {
+            'p': {
+              'i': '（請點選 <a href="' + line.match(/\((.*?)\)/)[1] + '">' + type + '</a> 參考）'
             }
-            debateSection.narrative.push(narrative)
           }
-        })     
-      }
-      return
+          debateSection.narrative.push(narrative)
+          return
+        }
+      })
     }
-
     let speaker = (section.match(/ (.*?)[:：]\n/) || [])[1]
     // speaker sections
     if (speaker) {
@@ -123,7 +120,7 @@ function App() {
           <Typography variant="h6" color="inherit" noWrap className={classes.toolbarTitle}>
             md2an
           </Typography>
-          <Button href="#" color="primary" variant="outlined" className={classes.link}>
+{/*           <Button href="#" color="primary" variant="outlined" className={classes.link}>
             Submit
           </Button>
           <GitHubLogin clientId="7a7d8d6ba2a6f5847e5c"
@@ -132,7 +129,7 @@ function App() {
             onSuccess={onSuccess}
             onFailure={onFailure}
             redirectUri="http://localhost:3000/"
-          />
+          /> */}
         </Toolbar>
       </AppBar>
       <Container maxWidth="xl">
@@ -147,8 +144,6 @@ function App() {
               fullWidth
               variant="outlined"
               autoFocus={true} 
-              rows={15}
-              rowsMax={15}
             />
             <TextField
               id="output"
@@ -159,8 +154,6 @@ function App() {
               value={values}
               variant="outlined"
               autoFocus={true} 
-              rows={15}
-              rowsMax={15}
             />
           </Grid>
         </Grid>
