@@ -12,6 +12,7 @@ import _ from 'lodash';
 import GitHubLogin from 'github-login';
 import css from './App.css'
 const js2xmlparser = require('js2xmlparser');
+const jsonxml = require('jsontoxml');
 const marked = require('marked');
 const he = require('he');
 
@@ -34,11 +35,11 @@ const onSuccess = response => console.log(response);
 const onFailure = response => console.error(response);
 
 const md2an = (input) => {
-  let references = {'TLCPerson': []}
-  let debateSection = {'heading':'','narrative':[],'speech':[]}
+  let references = []
+  let debateSection = []
   let speakers = []
   let sections = input.replace(/\n:::info\n[\d\D]*?\n:::\n/, '').split('###')
-  debateSection.heading = (input.match(/^#* (.*)/) || [])[1]
+  debateSection.push({'heading':(input.match(/^#* (.*)/) || [])[1]})
   sections.map( section => {
     // first section = ''
     if (! /\S/.test(section)) { return }
@@ -49,11 +50,16 @@ const md2an = (input) => {
         if (/(?=.*>)(?=.*\[)(?=.*（).*/.exec(line)) {
           let type = line.match(/\[(.*?)\]/)[1]
           let narrative = {
-            'p': {
-              'i': '（請點選 <a href="' + line.match(/\((.*?)\)/)[1] + '">' + type + '</a> 參考）'
-            }
+            'name': 'narrative',
+            children: [
+              {
+                'p': {
+                  'i': '（請點選 <a href="' + line.match(/\((.*?)\)/)[1] + '">' + type + '</a> 參考）'
+                }
+              }
+            ]
           }
-          debateSection.narrative.push(narrative)
+          debateSection.push(narrative)
           return
         }
       })
@@ -65,12 +71,17 @@ const md2an = (input) => {
       context.split(/[\r\n]{2,}/).map(p => {
         if (!/\S/.test(p)) { return }
         let speech = {
-         '@': { 
-           'by': '#' + speaker 
-         },
-         'p': he.decode(marked(p.replace(/^[\r\n]+/, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, '')
+          'name': 'speech',
+          'attrs': { 
+            'by': '#' + speaker 
+          },
+          children: [
+            {
+              'p': he.decode(marked(p.replace(/^[\r\n]+/, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, ''),
+            }
+          ]
         }
-        debateSection.speech.push(speech)
+        debateSection.push(speech)
       })
       speakers.push(speaker)
     }
@@ -78,33 +89,101 @@ const md2an = (input) => {
   speakers = _.uniq(speakers)
   speakers.map( speaker => {
     let TLCPerson = {
-      '@': { 
+      'name': 'TLCPerson',
+      'attrs': { 
         href: "/ontology/person/::/" + speaker,
         id: speaker,
         showAs: speaker,
       },
     }
-    references.TLCPerson.push(TLCPerson)
+    references.push(TLCPerson)
   })
   if (/Office Hour_/.test(debateSection.heading)) {
     let heading = debateSection.heading.replace(/_[^_]*$/, '')
     debateSection.heading = debateSection.heading.replace(/.*Office Hour_/, '')
     debateSection = { 'heading': heading, 'debateSection': debateSection }
   }
-  let an = { 
-    'debate': {
+  let output = jsonxml({
+    'akomaNtoso':{
+      'debate': {
         'meta': { 
           references 
-      },
-      'debateBody': 
-      { 
-        'debateSection': debateSection
+        },
+        'debateBody': 
+        { 
+          'debateSection': debateSection
+        }
       }
     }
-  }
-  let output = js2xmlparser.parse('akomaNtoso', an)
-  output = output.replace(/&lt;/g, '<')
+  }, {'xmlHeader': true, 'prettyPrint' : true})
   return output
+  // debateSection.heading = (input.match(/^#* (.*)/) || [])[1]
+  // sections.map( section => {
+  //   // first section = ''
+  //   if (! /\S/.test(section)) { return }
+  //   // info section
+  //   if (/🌐|📅|🏡/.exec(section)) {
+  //     let lines = section.split(/\n+/)
+  //     lines.map( line => {
+  //       if (/(?=.*>)(?=.*\[)(?=.*（).*/.exec(line)) {
+  //         let type = line.match(/\[(.*?)\]/)[1]
+  //         let narrative = {
+  //           'p': {
+  //             'i': '（請點選 <a href="' + line.match(/\((.*?)\)/)[1] + '">' + type + '</a> 參考）'
+  //           }
+  //         }
+  //         debateSection.narrative.push(narrative)
+  //         return
+  //       }
+  //     })
+  //   }
+  //   let speaker = (section.match(/ (.*?)[:：]\n/) || [])[1]
+  //   // speaker sections
+  //   if (speaker) {
+  //     let context = section.replace(/ (.*?)[:：]\n/, '')
+  //     context.split(/[\r\n]{2,}/).map(p => {
+  //       if (!/\S/.test(p)) { return }
+  //       let speech = {
+  //        '@': { 
+  //          'by': '#' + speaker 
+  //        },
+  //        'p': he.decode(marked(p.replace(/^[\r\n]+/, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, '')
+  //       }
+  //       debateSection.speech.push(speech)
+  //     })
+  //     speakers.push(speaker)
+  //   }
+  // })
+  // speakers = _.uniq(speakers)
+  // speakers.map( speaker => {
+  //   let TLCPerson = {
+  //     '@': { 
+  //       href: "/ontology/person/::/" + speaker,
+  //       id: speaker,
+  //       showAs: speaker,
+  //     },
+  //   }
+  //   references.TLCPerson.push(TLCPerson)
+  // })
+  // if (/Office Hour_/.test(debateSection.heading)) {
+  //   let heading = debateSection.heading.replace(/_[^_]*$/, '')
+  //   debateSection.heading = debateSection.heading.replace(/.*Office Hour_/, '')
+  //   debateSection = { 'heading': heading, 'debateSection': debateSection }
+  // }
+  // let an = { 
+  //   'debate': {
+  //       'meta': { 
+  //         references 
+  //     },
+  //     'debateBody': 
+  //     { 
+  //       'debateSection': debateSection
+  //     }
+  //   }
+  // }
+  // let output = js2xmlparser.parse('akomaNtoso', an)
+  // output = output.replace(/&lt;/g, '<')
+  /* return output */
 }
 
 const findTitle  = (input) => {
