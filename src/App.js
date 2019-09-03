@@ -70,7 +70,7 @@ const md2an = (input) => {
             children: [
               {
                 'p': {
-                  'i': p.replace(/>\s+/,'')
+                  'i': p.replace(/>/,'').replace(/\s+/,'')
                 }
               }
             ]
