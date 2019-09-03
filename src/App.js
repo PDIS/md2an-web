@@ -13,6 +13,7 @@ import GitHubLogin from 'github-login';
 import css from './App.css'
 const js2xmlparser = require('js2xmlparser');
 const jsonxml = require('jsontoxml');
+const format = require('xml-formatter');
 const marked = require('marked');
 const he = require('he');
 
@@ -70,6 +71,20 @@ const md2an = (input) => {
       let context = section.replace(/ (.*?)[:：]\n/, '')
       context.split(/[\r\n]{2,}/).map(p => {
         if (!/\S/.test(p)) { return }
+        if (/^>/.exec(p)) {
+          let narrative = {
+            'name': 'narrative',
+            children: [
+              {
+                'p': {
+                  'i': p.replace(/>\s+/,'')
+                }
+              }
+            ]
+          }
+          debateSection.push(narrative)
+          return
+        }
         let speech = {
           'name': 'speech',
           'attrs': { 
@@ -103,7 +118,7 @@ const md2an = (input) => {
     debateSection.heading = debateSection.heading.replace(/.*Office Hour_/, '')
     debateSection = { 'heading': heading, 'debateSection': debateSection }
   }
-  let output = jsonxml({
+  let xml = jsonxml({
     'akomaNtoso':{
       'debate': {
         'meta': { 
@@ -115,7 +130,8 @@ const md2an = (input) => {
         }
       }
     }
-  }, {'xmlHeader': true, 'prettyPrint' : true})
+  }, {'xmlHeader': true})
+  let output = format(xml)
   return output
   // debateSection.heading = (input.match(/^#* (.*)/) || [])[1]
   // sections.map( section => {
