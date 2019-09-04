@@ -106,10 +106,10 @@ const md2an = (input) => {
     }
     references.push(TLCPerson)
   })
-  if (/Office Hour_/.test(debateSection.heading)) {
-    let heading = debateSection.heading.replace(/_[^_]*$/, '')
-    debateSection.heading = debateSection.heading.replace(/.*Office Hour_/, '')
-    debateSection = { 'heading': heading, 'debateSection': debateSection }
+  if (/Office Hour_/.test(debateSection[0].heading)) {
+    let heading = debateSection[0].heading.replace(/_[^_]*$/, '')
+    debateSection[0].heading = debateSection[0].heading.replace(/.*Office Hour_/, '')
+    debateSection = [{'heading': heading}, {'debateSection': debateSection}]
   }
   let xml = jsonxml({
     'akomaNtoso':{
@@ -129,7 +129,7 @@ const md2an = (input) => {
 }
 
 const findTitle  = (input) => {
-  return (input.match(/^#* (.*)/) || [])[1].replace(/\s/g, '-') + '.an.xml'
+  return (input.match(/^#* (.*)/) || [])[1].replace(/\s/g, '-').replace(/Office-Hour_.*/, 'Office-Hour') + '.an.xml'
 }
 
 function App() {
