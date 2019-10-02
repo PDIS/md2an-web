@@ -45,7 +45,7 @@ const md2an = (input) => {
           let type = line.match(/\[(.*?)\]/)[1]
           let hyperlink = line.match(/\((.*?)\)/)[1]
           let first = line.match(/> (.*?)\[/)[1]
-          let last = line.match(/\)(.*?)\）/)[0].replace(')','')
+          let last = line.match(/\)(.*?)）/)[0].replace(')','')
           let narrative = {
             'name': 'narrative',
             children: [
