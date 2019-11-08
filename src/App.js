@@ -89,7 +89,7 @@ const md2an = (input) => {
           },
           children: [
             {
-              'p': he.decode(marked(p.replace(/^[\r\n]+/, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, ''),
+              'p': he.decode(marked(p.replace(/^[\r\n]+/, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, '').replace('&', '&#x26;'),
             }
           ]
         }
