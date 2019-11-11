@@ -41,6 +41,36 @@ const md2an = (input) => {
     if (/🌐|📅|🏡/.exec(section)) {
       let lines = section.split(/\n+/)
       lines.map( line => {
+        if (/(?=.*>)(?=.*iframe).*/.exec(line)) {
+          let hyperlink = line.match(/\<iframe(.*?)<\/iframe>/)[0]
+          let narrative = {
+            'name': 'narrative',
+            children: [
+              {
+                'p': {
+                  'i': `${hyperlink}`
+                }
+              }
+            ]
+          }
+          debateSection.push(narrative)
+          return
+        }
+        if (/(?=.*>)(?=.*img).*/.exec(line)) {
+          let hyperlink = line.match(/\<img(.*?)\/>/)[0]
+          let narrative = {
+            'name': 'narrative',
+            children: [
+              {
+                'p': {
+                  'i': `${hyperlink}`
+                }
+              }
+            ]
+          }
+          debateSection.push(narrative)
+          return
+        }
         if (/(?=.*>)(?=.*\[)(?=.*（).*/.exec(line)) {
           let type = line.match(/\[(.*?)\]/)[1]
           let hyperlink = line.match(/\((.*?)\)/)[1]
