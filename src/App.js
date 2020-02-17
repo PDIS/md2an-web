@@ -28,12 +28,45 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const md2an = (input) => {
+/* const ConvertViz = async input => {
+  if (/```graphviz/.exec(input)) {
+    let vizString = input.replace('graphviz','').split('```')[1]
+    let result = await viz.renderString(vizString)
+    let count = 0
+    let graphviz = ''
+    result.split('\n').map( line => {
+      if (count > 5)
+      {
+        if (/width/.test(line)) { 
+          line = line.replace(line.match(/width\=(.*?) /)[1], '"100%"')
+        }
+        graphviz += line
+      }
+      count++
+    })
+    return graphviz
+  } else {
+    return ''
+  }
+} */
+
+const md2an = (input, graphviz) => {
   let references = []
   let debateSection = []
   let speakers = []
   let sections = input.replace(/\n:::info\n[\d\D]*?\n:::\n/, '').split('###')
   debateSection.push({'heading':(input.match(/^#* (.*)/) || [])[1]})
+  if ( graphviz != '') {
+    let narrative = {
+      'name': 'narrative',
+      children: [
+        {
+          'p': graphviz
+        }
+      ]
+    }
+    debateSection.push(narrative)
+  }
   sections.map( section => {
     // first section = ''
     if (! /\S/.test(section)) { return }
@@ -119,13 +152,13 @@ const md2an = (input) => {
           },
           children: [
             {
-              'p': he.decode(marked(p.replace(/^[\r\n]+/, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, '').replace('&', '&#x26;'),
+              'p': he.decode(marked(p.replace(/^[\r\n]+/, ''), { smartypants: true })).replace(/^\s*<p>\s*|\s*<\/p>\s*$/g, '').replace(/&/g, '&#x26;'),
             }
           ]
         }
         if (/<a href="/.test(speech.children[0].p)) {
           let linkbefore = speech.children[0].p.match(/<a href(.*?)>/)[0]
-          let linkafter = linkbefore.replace('&', '&#x26;')
+          let linkafter = linkbefore
           speech.children[0].p = speech.children[0].p.replace(linkbefore, linkafter)
         }
         debateSection.push(speech)
@@ -175,8 +208,9 @@ function App() {
   const classes = useStyles();
   const [values, setValues] = useState('');
   const [title, setTitle] = useState('md2an');
-  const handleChange = a => event => {
-    let output = md2an(event.target.value)
+  const handleChange = a => async event => {
+/*     let graphviz = await ConvertViz(event.target.value) */
+    let output = md2an(event.target.value, '')
     let title = findTitle(event.target.value)
     setValues(output)
     setTitle(title)

@@ -15,12 +15,13 @@
     "marked": "^0.7.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
-    "react-scripts": "3.1.0",
+    "react-scripts": "^3.4.0",
+    "viz.js": "^2.1.2",
     "xml-formatter": "^1.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "build": "react-scripts --max_old_space_size=4096 build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build && (COPY \"CNAME\" \"./build/CNAME\" || cp CNAME ./build/CNAME)",
